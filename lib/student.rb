@@ -2,10 +2,24 @@ class Student
   attr_accessor :id, :name, :grade
 
   def self.new_from_db(row)
+    new_student = self.new
+    new_student.id = row[0]
+    new_student.name = row[1]
+    new_student.grade = row[2]
+    new_student
     # create a new Student object given a row from the database
   end
 
   def self.all
+    sql = <<-SQL 
+      SELECT *
+      FROM students
+    SQL
+
+    DB[:conn].execute(sql).map do |row|
+      self.new_from_db(row)
+    end
+
     # retrieve all the rows from the "Students" database
     # remember each row should be a new instance of the Student class
   end
@@ -13,7 +27,87 @@ class Student
   def self.find_by_name(name)
     # find the student in the database given a name
     # return a new instance of the Student class
+    sql = <<-SQL
+      SELECT *
+      FROM students
+      WHERE name = ?
+      LIMIT 1
+    SQL
+
+    DB[:conn].execute(sql, name).map do |row|
+      self.new_from_db(row)
+    end.first
   end
+
+  def self.all_students_in_grade_9
+    sql = <<-SQL
+      SELECT *
+      FROM students
+      WHERE grade = 9
+    SQL
+    
+    student_array= []
+
+    DB[:conn].execute(sql).each do |row|
+      pupil = Student.new_from_db(row)
+      student_array << pupil
+    end
+    
+    student_array
+  end
+
+  def self.students_below_12th_grade
+    sql = <<-SQL
+      SELECT *
+      FROM students
+      WHERE grade < 12
+      SQL
+  student_array = []
+  
+  DB[:conn].execute(sql).each do |row|
+    new_student = Student.new_from_db(row)
+    student_array << new_student
+  end
+
+  student_array
+  end
+
+  def self.first_X_students_in_grade_10(num_students)
+    sql = <<-SQL
+      SELECT *
+      FROM students
+      WHERE grade = 10
+      LIMIT ?
+    SQL
+    student_array = []
+
+    DB[:conn].execute(sql, num_students).each do |row|
+      new_student = Student.new_from_db(row)
+      student_array << new_student
+    end
+    student_array
+  end
+
+  def self.first_student_in_grade_10
+    self.first_X_students_in_grade_10(1).first
+  end
+
+  def self.all_students_in_grade_X(grade_level)
+    sql = <<-SQL
+      SELECT *
+      FROM students
+      WHERE grade = ?
+    SQL
+    student_array = []
+
+    DB[:conn].execute(sql, grade_level).each do |row|
+      new_student = Student.new_from_db(row)
+      student_array << new_student
+    end
+    student_array
+  end
+
+
   
   def save
     sql = <<-SQL
