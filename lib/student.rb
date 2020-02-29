@@ -64,6 +64,10 @@ class Student
   end
 
   def self.first_X_students_in_grade_10(number)
+    # the method is trying to return the first number of students in grade 10
+    # number is passed in as an argument where Limit is ?
+    # When the number of students is returned, the Limit, or number of students returned, will apply to ?
+    # number = ?
      sql = <<-SQL
      SELECT * FROM students WHERE grade = 10 ORDER BY students.id
      LIMIT ?
