@@ -14,7 +14,6 @@ class Student
       SELECT * FROM songs
     SQL
 
-
     DB[:conn].execute(sql).map do |row|
       self.new_from_db(row)end
     # retrieve all the rows from the "Students" database
@@ -22,6 +21,17 @@ class Student
   end
 
   def self.find_by_name(name)
+    sql = <<-SQL
+    SELECT *
+    FROM students
+    WHERE NAME = ?
+    LIMIT 1
+    SQL
+
+    DB[:conn].execute(sql, name).map do |row|
+      self.new_from_db(row)
+    end.first
+
     # find the student in the database given a name
     # return a new instance of the Student class
   end
@@ -51,4 +61,6 @@ class Student
     sql = "DROP TABLE IF EXISTS students"
     DB[:conn].execute(sql)
   end
+
+  
 end
